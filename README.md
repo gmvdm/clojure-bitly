@@ -3,6 +3,16 @@
 Clojure mapping for the [Bitly API v3](http://code.google.com/p/bitly-api/wiki/ApiDocumentation#/v3).
 
 ## Usage
+
+Add the following to your project.clj:
+
+    (:dependencies [[clojure-bitly "0.1"]])
+    
+Then download dependencies:
+
+    lein deps
+    
+Then try from the repl:
     
     (require 'bitly)
   
