@@ -1,19 +1,37 @@
 (ns bitly
   (:use [clojure.contrib.json :only (json-str read-json)])
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [clj-http.util :as util]
+            [clojure.contrib.str-utils2 :as s2]))
 
 (def *api-user* nil)
 (def *api-key* nil)
 (def *api-base* "http://api.bitly.com/v3/")
 
+(defn generate-query-string [params]
+  "Generate query string allowing for duplicate parameters"
+  (if (map? params)
+    (client/generate-query-string params)
+    (s2/join "&"
+             (loop [params params query nil]
+               (if params
+                 (let [k (first params)
+                       v (second params)
+                       new-query (conj query (str (util/url-encode (name k)) "="
+                                                  (util/url-encode (str v))))]
+                   (recur (nnext params) new-query))
+                 query)))))
+
 (defn- build-request-url [method params]
-  (let [base-params {"login" *api-user*
-                     "apiKey" *api-key*
-                     "format" "json"}
-        base-url *api-base*
-        full-params (merge base-params params)]
-    (str base-url method "?"
-         (client/generate-query-string full-params))))
+  (if (and *api-user* *api-key*)
+   (let [base-params {"login" *api-user*
+                      "apiKey" *api-key*
+                      "format" "json"}
+         base-url *api-base*
+         full-params (merge base-params params)]
+     (str base-url method "?"
+          (generate-query-string full-params)))
+   (throw (IllegalArgumentException. "Must supply a Bitly API user and key.")))) 
 
 (defn- request-data [url]
   (:data (read-json (:body (client/get url)))))
@@ -61,9 +79,9 @@
 
                                         ; TODO - support multiple urls
 (defn lookup [long-url]
-  (let [request-url (build-request-url "lookup" {"url" long-url})]
-    (:short_url
-     (first (:lookup (request-data request-url))))))
+  (let [request-url (build-request-url "lookup" {"url" long-url})
+        result (:lookup (request-data request-url))]
+    (:short_url (first result))))
 
 (defn info [short-url]
   (let [request-url (build-request-url "info" {"shortUrl" short-url})]
