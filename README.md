@@ -36,6 +36,8 @@ Shorten a url:
       
     > "http://j.mp/j5YLIl"
 
+Lookup statistics for a url:
+
 ``` clojure      
 (bitly/with-auth api-user api-key
   (let [short-url (bitly/lookup "http://www.example.com/")]
