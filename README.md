@@ -35,8 +35,9 @@ Shorten a url:
 ```
       
     > "http://j.mp/j5YLIl"
+    
 
-Lookup statistics for a url:
+Find statistics for a url:
 
 ``` clojure      
 (bitly/with-auth api-user api-key
@@ -46,6 +47,22 @@ Lookup statistics for a url:
         
     > {:clicks [{:short_url "http://bit.ly/3hDSUb", :global_hash "3hDSUb", :user_clicks 956, :user_hash "3hDSUb", :global_clicks 956}]}
 
+Lookup one url:
+
+``` clojure
+(bitly/with-auth api-user api-key
+ (bitly/lookup "http://www.example.com/"))
+```
+    > "http://bit.ly/bIXfqr"
+
+Lookup many urls:
+
+``` clojure
+(bitly/with-auth api-user api-key
+ (bitly/lookup ["http://www.example.com/" "http://www.google.com/"]))
+```
+
+    > [{:url "http://www.example.com", :short_url "http://bit.ly/bIXfqr", :global_hash "bIXfqr"} {:url "http://www.google.com/", :short_url "http://bit.ly/2V6CFi", :global_hash "2V6CFi"}]
 
 ## Building
 

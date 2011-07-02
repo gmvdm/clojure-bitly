@@ -22,13 +22,22 @@
                    (recur (nnext params) new-query))
                  query)))))
 
+(defn- expand-args [k values]
+  "Expand out the arguments for multiple values"
+  (if (coll? values)
+    (loop [vals values result nil]
+      (if vals
+        (recur (next vals) (concat [k (first vals)] result))
+        result))
+    [k values]))
+
 (defn- build-request-url [method params]
   (if (and *api-user* *api-key*)
-   (let [base-params {"login" *api-user*
-                      "apiKey" *api-key*
-                      "format" "json"}
+    (let [base-params ["login" *api-user*
+                       "apiKey" *api-key*
+                       "format" "json"]
          base-url *api-base*
-         full-params (merge base-params params)]
+         full-params (concat base-params params)]
      (str base-url method "?"
           (generate-query-string full-params)))
    (throw (IllegalArgumentException. "Must supply a Bitly API user and key.")))) 
@@ -45,44 +54,58 @@
        ~@body)))
 
 ;; API methods - http://code.google.com/p/bitly-api/wiki/ApiDocumentation#/v3
+;; TODO allow parameter for domain
 (defn shorten [url]
-  (let [request-url (build-request-url "shorten" {"longUrl" url "domain" "j.mp"})]
+  (let [request-url (build-request-url "shorten" ["longUrl" url "domain" "j.mp"])]
     (:url (request-data request-url))))
 
 (defn expand [short-url]
-  (let [request-url (build-request-url "expand" {"shortUrl" short-url})]
+  (let [request-url (build-request-url "expand" ["shortUrl" short-url])]
     (request-data request-url)))
 
 (defn validate [x_login x_apiKey]
-  (let [request-url (build-request-url "validate" {"x_login" x_login
-                                                   "x_apiKey" x_apiKey})]
+  (let [request-url (build-request-url "validate" ["x_login" x_login
+                                                   "x_apiKey" x_apiKey])]
     (request-data request-url)))
 
-                                        ; TODO - support multiple urls or hashes (up to 15)
-(defn clicks [short-url]
-  (let [request-url (build-request-url "clicks" {"shortUrl" short-url})]
-    (request-data request-url)))
+(defn clicks [short-urls]
+  (if (and (coll? short-urls) (> (count short-urls) 15))
+    (throw (IllegalArgumentException.
+            "Must not supply more than 15 urls to Bitly clicks."))
+    (let [request-url (build-request-url "clicks"
+                                         (expand-args "shortUrl" short-urls))]
+     (:clicks (request-data request-url)))))
 
-                                        ; TODO - support multiple urls or hashes (up to 15)
-(defn clicks-by-minute [short-url]
-  (let [request-url (build-request-url "clicks_by_minute" {"shortUrl" short-url})]
-    (request-data request-url)))
+(defn clicks-by-minute [short-urls]
+  (if (and (coll? short-urls) (> (count short-urls) 15))
+    (throw (IllegalArgumentException.
+            "Must not supply more than 15 urls to Bitly clicks-by-minute."))
+   (let [request-url (build-request-url "clicks_by_minute"
+                                        (expand-args "shortUrl" short-urls))]
+     (:clicks_by_minute (request-data request-url)))))
 
-                                        ; TODO - support multiple urls or hashes (up to 15)
-(defn clicks-by-day [short-url]
-  (let [request-url (build-request-url "clicks_by_day" {"shortUrl" short-url})]
-    (request-data request-url)))
+(defn clicks-by-day [short-urls]
+  (if (and (coll? short-urls) (> (count short-urls) 15))
+    (throw (IllegalArgumentException.
+            "Must not supply more than 15 urls to Bitly clicks-by-day."))
+    (let [request-url (build-request-url "clicks_by_day"
+                                         (expand-args "shortUrl" short-urls))]
+      (request-data request-url))))
 
 (defn bitly-pro-domain [domain]
-  (let [request-url (build-request-url "bitly_pro_domain" {"domain" domain})]
+  (let [request-url (build-request-url "bitly_pro_domain" ["domain" domain])]
     (request-data request-url)))
 
-                                        ; TODO - support multiple urls
-(defn lookup [long-url]
-  (let [request-url (build-request-url "lookup" {"url" long-url})
-        result (:lookup (request-data request-url))]
-    (:short_url (first result))))
+(defn lookup [long-urls]
+  (if (and (coll? long-urls) (> (count long-urls) 15))
+    (throw
+     (IllegalArgumentException. "Must not supply more than 15 urls to Bitly lookup."))
+    (let [request-url (build-request-url "lookup" (expand-args "url" long-urls))
+          results (:lookup (request-data request-url))]
+      (if (coll? long-urls)
+        results
+        (:short_url (first results))))))
 
 (defn info [short-url]
-  (let [request-url (build-request-url "info" {"shortUrl" short-url})]
+  (let [request-url (build-request-url "info" ["shortUrl" short-url])]
     (request-data request-url)))
