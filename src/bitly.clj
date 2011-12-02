@@ -55,8 +55,8 @@
 
 ;; API methods - http://code.google.com/p/bitly-api/wiki/ApiDocumentation#/v3
 ;; TODO allow parameter for domain
-(defn shorten [url]
-  (let [request-url (build-request-url "shorten" ["longUrl" url "domain" "j.mp"])]
+(defn shorten [url & {:keys [domain] :or {domain "j.mp"}}]
+  (let [request-url (build-request-url "shorten" ["longUrl" url "domain" domain])]
     (:url (request-data request-url))))
 
 (defn expand [short-url]
