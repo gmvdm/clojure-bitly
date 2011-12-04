@@ -11,7 +11,7 @@ Declare the dependency for your project:
   :description "Your project description"
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [clojure-bitly "0.1.1"]])
+                 [clojure-bitly "0.1.2"]])
 ```
     
 Then download dependencies:
