@@ -36,6 +36,13 @@ Shorten a url:
       
     > "http://j.mp/j5YLIl"
     
+Shorten for a custom domain:
+
+``` clojure
+(bitly/with-auth api-user api-key
+ (bitly/shorten "http://www.example.com/" {:domain "bit.ly"}))
+```
+    
 
 Find statistics for a url:
 
