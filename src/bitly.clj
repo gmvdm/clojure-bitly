@@ -4,9 +4,9 @@
             [clj-http.util :as util]
             [clojure.contrib.str-utils2 :as s2]))
 
-(def *api-user* nil)
-(def *api-key* nil)
-(def *api-base* "http://api.bitly.com/v3/")
+(def ^:dynamic *api-user* nil)
+(def ^:dynamic *api-key* nil)
+(def ^:dynamic *api-base* "http://api.bitly.com/v3/")
 
 (defn generate-query-string [params]
   "Generate query string allowing for duplicate parameters"
