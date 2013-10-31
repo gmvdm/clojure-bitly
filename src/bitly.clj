@@ -74,6 +74,12 @@
                                          (expand-args "shortUrl" short-urls))]
      (:clicks (request-data request-url)))))
 
+
+(defn user-clicks [short-urls]
+  (let [request-url (build-request-url "user/clicks"
+                                       (expand-args "unit" "month"))]
+    (:clicks (request-data request-url))))
+
 (defn clicks-by-minute [short-urls]
   (if (and (coll? short-urls) (> (count short-urls) 15))
     (throw (IllegalArgumentException.
