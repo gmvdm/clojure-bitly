@@ -1,8 +1,8 @@
 (ns bitly
-  (:use [clojure.contrib.json :only (json-str read-json)])
   (:require [clj-http.client :as client]
             [clj-http.util :as util]
-            [clojure.contrib.str-utils2 :as s2]))
+            [clojure.contrib.str-utils2 :as s2]
+            [clojure.data.json :as json]))
 
 (def ^:dynamic *api-user* nil)
 (def ^:dynamic *api-key* nil)
@@ -43,7 +43,7 @@
    (throw (IllegalArgumentException. "Must supply a Bitly API user and key.")))) 
 
 (defn- request-data [url]
-  (:data (read-json (:body (client/get url)))))
+  (:data (json/read-str (:body (client/get url)))))
 
 (defmacro with-auth
   "Sets the API user and API key for Bitly API requests"
