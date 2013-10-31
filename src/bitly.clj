@@ -75,7 +75,7 @@
      (:clicks (request-data request-url)))))
 
 
-(defn user-clicks [short-urls]
+(defn user-clicks []
   (let [request-url (build-request-url "user/clicks"
                                        (expand-args "unit" "month"))]
     (:clicks (request-data request-url))))
