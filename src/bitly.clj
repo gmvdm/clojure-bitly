@@ -1,7 +1,6 @@
 (ns bitly
   (:require [clj-http.client :as client]
             [clj-http.util :as util]
-            [clojure.contrib.str-utils2 :as s2]
             [clojure.data.json :as json]))
 
 (def ^:dynamic *api-user* nil)
@@ -12,7 +11,7 @@
   "Generate query string allowing for duplicate parameters"
   (if (map? params)
     (client/generate-query-string params)
-    (s2/join "&"
+    (clojure.string/join "&"
              (loop [params params query nil]
                (if params
                  (let [k (first params)
